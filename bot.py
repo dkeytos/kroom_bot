@@ -9,6 +9,11 @@ import re  # For email validation
 import os
 from datetime import datetime
 from openpyxl import Workbook, load_workbook
+from dotenv import load_dotenv
+load_dotenv()
+
+TOKEN = os.getenv("BOT_TOKEN")
+OWNER_CHAT_ID = int(os.getenv("OWNER_CHAT_ID"))
 
 def is_valid_email(email: str) -> bool:
     # Simple regex for email validation
