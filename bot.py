@@ -27,6 +27,8 @@ OWNER_CHAT_ID = 7341033870  # Replace with your actual Telegram user ID
 # Set up logging so you can see what’s happening
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+# Suppress httpx debug messages:
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 # Conversation state constants
 WAITING_FOR_USERNAME = 0
