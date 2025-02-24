@@ -36,7 +36,8 @@ WAITING_FOR_EMAIL = 3  # New state for registered email input
 lang_flags = {
     "eng": "🇬🇧",
     "ita": "🇮🇹",
-    "spa": "🇪🇸"
+    "spa": "🇪🇸",
+    "us": "🇺🇸"  # new flag for US residents
 }
 
 # Add language-specific messages and helper function
@@ -82,6 +83,20 @@ language_msgs = {
         "reset_button": "Reiniciar 🔄",
         "ask_email": "¡Perfecto! Ahora, ingrese el correo electrónico con el que se registró en AXI📧",
         "invalid_email": "¡Uy! 😕 El correo electrónico ingresado no es válido. Por favor, ingrese un correo electrónico válido 📧"
+    },
+    "us": {  # new mapping for US, identical to eng
+        "ask_username": "Please enter your Keytos username 😊:",
+        "unset_username": "⚠️ Your Telegram username is not set. Please update your Telegram profile and send 'OK'.",
+        "ask_photo": "Hey there! 😊 Please send a photo as proof of deposit, as the ones shown above. 📸 Only a screenshot is accepted!\n\nPlease note, only deposit >300$ grant access to KeyRoom.",
+        "invalid_photo": "Oops! 😕 Kindly note, only a photo can be used as proof of deposit. 📸 Please send a picture. 👍",
+        "invalid_photo_reset": "Oops! 😕 Only a photo works. Please send a picture.\n\nOr press {reset_button} to start over!",
+        "success": "Awesome! 😊 Our support team will contact you shortly to get you into KeyRoom! 🚀",
+        "choose_option": "Please choose an option below: 👇",
+        "deposit_proof_button": "Deposit Proof 📸",
+        "already_registered_button": "Already Registered ✅",
+        "reset_button": "Reset 🔄",
+        "ask_email": "Great! Now, please enter your INVIDIATRADE registered email address 📧",
+        "invalid_email": "Hmm... That doesn't look like a valid email address 😕. Please send a valid email address 📧"
     }
 }
 
@@ -143,7 +158,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("🇬🇧", callback_data="eng"),
              InlineKeyboardButton("🇮🇹", callback_data="ita"),
              InlineKeyboardButton("🇪🇸", callback_data="spa")],
-            [InlineKeyboardButton("US Residents", callback_data="us")]
+            [InlineKeyboardButton("US Residents 🇺🇸", callback_data="us")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         new_menu = await update.message.reply_text(language_msgs["eng"]["choose_option"], reply_markup=reply_markup)
@@ -151,13 +166,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return CHOOSING_OPTION
     else:
         # If a parameter is provided, check for us_resident first.
-        if param == "us_resident":
-            context.user_data["reg_param"] = param
-            context.user_data["lang"] = "eng"
-            context.user_data["flow"] = "us"
-            await update.message.reply_text(language_msgs["eng"]["ask_username"])
-            return WAITING_FOR_USERNAME
-        elif param.endswith("_deposit"):
+        if param.endswith("_deposit"):
             lang = param.split("_")[0]
             context.user_data["lang"] = lang
             # Send sample pictures before asking for the photo.
@@ -168,13 +177,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_photo(photo=mobile_sample_url, caption="Mobile Screenshot")
             # Prompt for deposit proof in the chosen language.
             await update.message.reply_text(language_msgs[lang]["ask_photo"])
-            context.user_data["flow"] = "deposit"
+            context.user_data["flow"] = lang + "_deposit"
             return WAITING_FOR_PHOTO
         elif param.endswith("_register"):
             lang = param.split("_")[0]
             context.user_data["lang"] = lang
             await update.message.reply_text(language_msgs[lang]["ask_email"])
-            context.user_data["flow"] = "register"
+            context.user_data["flow"] = lang + "_register"
             return WAITING_FOR_EMAIL
         else:
             # Fallback: show the main menu.
@@ -198,7 +207,7 @@ async def send_start_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def choice_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    if query.data in ["eng", "ita", "spa"]:
+    if query.data in ["eng", "ita", "spa", "us"]:  # added "us" here
         context.user_data["lang"] = query.data  
         context.user_data["reg_param"] = query.data + "_"  # tentative action
         keyboard = [
@@ -268,7 +277,7 @@ async def keytos_username_handler(update: Update, context: ContextTypes.DEFAULT_
         })
         return ConversationHandler.END
 
-    elif flow == "deposit":
+    elif flow in ["us_deposit", "deposit"]:
         language_line = ""
         if lang in lang_flags:
             language_line = " " + lang_flags[lang]
@@ -289,7 +298,7 @@ async def keytos_username_handler(update: Update, context: ContextTypes.DEFAULT_
         })
         return ConversationHandler.END
 
-    elif flow == "register":
+    elif flow in ["us_register", "register"]:
         email = context.user_data.get("email", "Not provided")
         language_line = ""
         if lang in lang_flags:
