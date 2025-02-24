@@ -20,10 +20,6 @@ def is_valid_email(email: str) -> bool:
     pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.match(pattern, email) is not None
 
-# Replace with your BotFather token and your personal (owner) chat ID
-TOKEN = '7553175499:AAE44asU_QYGcYHJdDAASYcaR1aekB7m2L8'
-OWNER_CHAT_ID = 7341033870  # Replace with your actual Telegram user ID
-
 # Set up logging so you can see what’s happening
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -276,7 +272,8 @@ async def keytos_username_handler(update: Update, context: ContextTypes.DEFAULT_
         forward_msg = (
             "New Deposit Proof:\n"
             "Username: " + username + "\n" +
-            "Keytos Username: " + keytos_username + "\n"
+            "Keytos Username: " + keytos_username + "\n" +
+            "Language:" + language_line
         )
         await context.bot.send_photo(chat_id=OWNER_CHAT_ID, photo=context.user_data["deposit_photo"], caption=forward_msg)
         await update.message.reply_text(language_msgs[lang]["success"])
@@ -298,7 +295,8 @@ async def keytos_username_handler(update: Update, context: ContextTypes.DEFAULT_
             "New Contact (Already Registered):\n"
             "Username: " + username + "\n" +
             "Keytos Username: " + keytos_username + "\n" +
-            "Email: " + email + language_line
+            "Email: " + email + "\n" +
+            "Language:" + language_line
         )
         await context.bot.send_message(chat_id=OWNER_CHAT_ID, text=forward_msg)
         await update.message.reply_text(language_msgs[lang]["success"])
