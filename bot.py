@@ -269,6 +269,9 @@ async def keytos_username_handler(update: Update, context: ContextTypes.DEFAULT_
         return ConversationHandler.END
 
     elif flow == "deposit":
+        language_line = ""
+        if lang in lang_flags:
+            language_line = " " + lang_flags[lang]
         forward_msg = (
             "New Deposit Proof:\n"
             "Username: " + username + "\n" +
