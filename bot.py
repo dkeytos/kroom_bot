@@ -20,10 +20,6 @@ def is_valid_email(email: str) -> bool:
     pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.match(pattern, email) is not None
 
-# Replace with your BotFather token and your personal (owner) chat ID
-TOKEN = '7553175499:AAE44asU_QYGcYHJdDAASYcaR1aekB7m2L8'
-OWNER_CHAT_ID = 7341033870  # Replace with your actual Telegram user ID
-
 # Set up logging so you can see what’s happening
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
