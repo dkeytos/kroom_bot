@@ -37,6 +37,8 @@ lang_flags = {
     "eng": "🇬🇧",
     "ita": "🇮🇹",
     "spa": "🇪🇸",
+    "ger": "🇩🇪",
+    "fra": "🇫🇷",
     "us": "🇺🇸"  # new flag for US residents
 }
 
@@ -83,6 +85,34 @@ language_msgs = {
         "reset_button": "Reiniciar 🔄",
         "ask_email": "¡Perfecto! Ahora, ingrese el correo electrónico con el que se registró en AXI📧",
         "invalid_email": "¡Uy! 😕 El correo electrónico ingresado no es válido. Por favor, ingrese un correo electrónico válido 📧"
+    },
+    "ger": {
+        "ask_username": "Bitte gib deinen Keytos-Benutzernamen ein 😊:",
+        "unset_username": "⚠️ Dein Telegram-Benutzername ist nicht gesetzt. Bitte aktualisiere dein Telegram-Profil und sende 'OK'.",
+        "ask_photo": "Hallo! 😊 Bitte sende ein Foto als Einzahlungsnachweis, wie in den obigen Beispielen. 📸 Es wird nur ein Screenshot akzeptiert!\n\nBitte beachte: Zugang zu KeyRoom gibt es nur bei Einzahlungen >300$.",
+        "invalid_photo": "Ups! 😕 Als Einzahlungsnachweis kann nur ein Foto verwendet werden. 📸 Bitte sende ein Bild. 👍",
+        "invalid_photo_reset": "Ups! 😕 Es funktioniert nur mit einem Foto. Bitte sende ein Bild.\n\nOder drücke {reset_button}, um neu zu starten!",
+        "success": "Super! 😊 Unser Support-Team meldet sich in Kürze, um dir Zugang zu KeyRoom zu geben! 🚀",
+        "choose_option": "Bitte wähle unten eine Option: 👇",
+        "deposit_proof_button": "Einzahlungsnachweis 📸",
+        "already_registered_button": "Bereits registriert ✅",
+        "reset_button": "Zurücksetzen 🔄",
+        "ask_email": "Perfekt! Bitte gib jetzt die bei AXI registrierte E-Mail-Adresse ein 📧",
+        "invalid_email": "Hmm... Das sieht nicht wie eine gültige E-Mail-Adresse aus 😕. Bitte sende eine gültige E-Mail-Adresse 📧"
+    },
+    "fra": {
+        "ask_username": "Veuillez entrer votre nom d’utilisateur Keytos 😊 :",
+        "unset_username": "⚠️ Votre nom d’utilisateur Telegram n’est pas défini. Mettez à jour votre profil Telegram et envoyez ‘OK’.",
+        "ask_photo": "Salut ! 😊 Veuillez envoyer une photo comme preuve de dépôt, comme celles ci-dessus. 📸 Seule une capture d’écran est acceptée !\n\nNote : seuls les dépôts >300$ donnent accès à KeyRoom.",
+        "invalid_photo": "Oups ! 😕 Seule une photo peut être utilisée comme preuve de dépôt. 📸 Merci d’envoyer une image. 👍",
+        "invalid_photo_reset": "Oups ! 😕 Seule une photo est acceptée. Merci d’envoyer une image.\n\nOu appuyez sur {reset_button} pour recommencer !",
+        "success": "Génial ! 😊 Notre équipe de support vous contactera bientôt pour vous donner accès à KeyRoom ! 🚀",
+        "choose_option": "Veuillez choisir une option ci-dessous : 👇",
+        "deposit_proof_button": "Preuve de dépôt 📸",
+        "already_registered_button": "Déjà inscrit ✅",
+        "reset_button": "Réinitialiser 🔄",
+        "ask_email": "Parfait ! Maintenant, veuillez entrer l’adresse e-mail avec laquelle vous vous êtes inscrit chez AXI 📧",
+        "invalid_email": "Hmm… Cette adresse e-mail ne semble pas valide 😕. Veuillez envoyer une adresse e-mail valide 📧"
     },
     "us": {  # new mapping for US, identical to eng
         "ask_username": "Please enter your Keytos username 😊:",
@@ -157,7 +187,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
             [InlineKeyboardButton("🇬🇧", callback_data="eng"),
              InlineKeyboardButton("🇮🇹", callback_data="ita"),
-             InlineKeyboardButton("🇪🇸", callback_data="spa")],
+             InlineKeyboardButton("🇪🇸", callback_data="spa"),
+             InlineKeyboardButton("🇩🇪", callback_data="ger"),
+             InlineKeyboardButton("🇫🇷", callback_data="fra")],
             [InlineKeyboardButton("US Residents 🇺🇸", callback_data="us")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -171,8 +203,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             context.user_data["lang"] = lang
             # Send sample pictures before asking for the photo.
             ts = int(time.time())
-            pc_sample_url = f"https://keyroom-images-bucket.s3.eu-central-1.amazonaws.com/{lang}_pc.png?v={ts}"
-            mobile_sample_url = f"https://keyroom-images-bucket.s3.eu-central-1.amazonaws.com/{lang}_mobile.png?v={ts}"
+            image_lang = lang if lang in ["eng", "ita", "spa"] else "eng"
+            pc_sample_url = f"https://keyroom-images-bucket.s3.eu-central-1.amazonaws.com/{image_lang}_pc.png?v={ts}"
+            mobile_sample_url = f"https://keyroom-images-bucket.s3.eu-central-1.amazonaws.com/{image_lang}_mobile.png?v={ts}"
             await update.message.reply_photo(photo=pc_sample_url, caption="PC Screenshot")
             await update.message.reply_photo(photo=mobile_sample_url, caption="Mobile Screenshot")
             # Prompt for deposit proof in the chosen language.
@@ -193,7 +226,9 @@ async def send_start_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("🇬🇧", callback_data="eng"),
          InlineKeyboardButton("🇮🇹", callback_data="ita"),
-         InlineKeyboardButton("🇪🇸", callback_data="spa")],
+         InlineKeyboardButton("🇪🇸", callback_data="spa"),
+         InlineKeyboardButton("🇩🇪", callback_data="ger"),
+         InlineKeyboardButton("🇫🇷", callback_data="fra")],
         [InlineKeyboardButton("US Residents", callback_data="us")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -207,7 +242,7 @@ async def send_start_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def choice_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    if query.data in ["eng", "ita", "spa", "us"]:  # added "us" here
+    if query.data in ["eng", "ita", "spa", "ger", "fra"]:
         context.user_data["lang"] = query.data  
         context.user_data["reg_param"] = query.data + "_"  # tentative action
         keyboard = [
@@ -229,8 +264,9 @@ async def choice_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lang = context.user_data.get("lang", "eng")
         context.user_data["reg_param"] = lang + "_deposit"
         ts = int(time.time())
-        pc_sample_url = f"https://keyroom-images-bucket.s3.eu-central-1.amazonaws.com/{lang}_pc.png?v={ts}"
-        mobile_sample_url = f"https://keyroom-images-bucket.s3.eu-central-1.amazonaws.com/{lang}_mobile.png?v={ts}"
+        image_lang = lang if lang in ["eng", "ita", "spa"] else "eng"
+        pc_sample_url = f"https://keyroom-images-bucket.s3.eu-central-1.amazonaws.com/{image_lang}_pc.png?v={ts}"
+        mobile_sample_url = f"https://keyroom-images-bucket.s3.eu-central-1.amazonaws.com/{image_lang}_mobile.png?v={ts}"
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=pc_sample_url, caption="PC Screenshot")
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=mobile_sample_url, caption="Mobile Screenshot")
         await query.edit_message_text(language_msgs[lang]["ask_photo"])
